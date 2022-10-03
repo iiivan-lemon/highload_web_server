@@ -111,6 +111,8 @@ class RequestHandler implements Runnable {
         if (paramIndex != -1)
             uri = uri.substring(0, paramIndex);
 
+        if (checkURL(uri))
+            return null;
 
         return DEFAULT_FILES_DIR + uri;
     }
@@ -193,5 +195,23 @@ class RequestHandler implements Runnable {
             default:
                 return "Internal Server Error";
         }
+    }
+
+    private int checksubStr(String origin, String subStr) {
+        int count = 0;
+        while (origin.contains(subStr)) {
+            origin = origin.replaceFirst(subStr, "");
+            count++;
+        }
+        return count;
+    }
+
+    private Boolean checkURL(String url) {
+        int s = checksubStr(url, "/..");
+        if (s > 0) {
+            int nesting = checksubStr(url, "/") - 2 * s;
+            return nesting < 0;
+        }
+        return false;
     }
 }
